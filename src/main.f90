@@ -23,6 +23,9 @@ PROGRAM linearchain
   REAL::TEMPERATURE(C),ENERGY(C),W
   INTEGER::I,J,K,L,Q,P,R
 
+  !DOUBLE PRECISION jn
+  !EXTERNAL jn
+
   PRINT*,"ThermWire"
 
   !**********END VAR. DECLARATION**************!!!
@@ -504,6 +507,7 @@ PROGRAM linearchain
 
   PRINT*,"--- finished!"
 
+  PRINT*,"x=1.0,n=1,jn=", BESSEL(2,1.5)
   STOP
 
 CONTAINS
@@ -571,40 +575,32 @@ CONTAINS
 
   REAL FUNCTION BESSEL(N,X)
     IMPLICIT NONE
-    INTEGER::N,N1
-    REAL::X
-    REAL::OUTPUT,BK
-    INTEGER::K,P,M
-    N1=ABS(N)
-    M=12
-    OUTPUT=0
-    P=1
-    IF(N<0) P=(-1)**N
-    DO K=0,M
-       BK=1./((2**(2*K+N1))*FACTORIAL(K)*FACTORIAL(K+N1))
-       OUTPUT=OUTPUT+BK*((X)**(2*K+N1))
-    END DO
-    OUTPUT=OUTPUT*P
-    BESSEL=OUTPUT
+    INTEGER::N
+    REAL::X, BESSJ
+    
+    BESSEL= BESSJ(N,X)
+
   END FUNCTION BESSEL
+
 
   SUBROUTINE SOLVER(MAT, RHS, VEC)
 
     COMPLEX::MAT(N,N), RHS(N), VEC(N)
-
+    
     INTEGER::INFO
     INTEGER::IPIV(N)
-
+    
     PRINT*,"SOLVER()"
-
+    
     CALL ZGESV( N, 1, MAT, N, IPIV, RHS, N, INFO )
-
+    
     IF(INFO.NE.0) THEN
        PRINT*,"SOLVER(): INFO=", INFO," --- WRNG!"
     ENDIF
-
+    
     VEC= RHS
-
+    
   END SUBROUTINE SOLVER
-
+  
 END PROGRAM linearchain
+  

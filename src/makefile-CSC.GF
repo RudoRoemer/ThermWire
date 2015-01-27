@@ -45,9 +45,9 @@ F77FLAGS = -fbounds-check -fno-range-check # debug
 INCLUDEDIR = /warwick/mathlib/gnu/x86_64/ # CSC machines
 #INCLUDEDIR = /usr/lib/ # RAR Linux
 
-LIBFLAGS= -llapack #-lblas #-lfftw3
+LIBFLAGS= -llapack -L../cephes/ -lmd #-lblas #-lfftw3
 
-OBJECTFILES = main.f90
+OBJECTFILES = main.f90 bessel.f90
 
 %.o: %.f90
 	$(F90) $(F90FLAGS) -DF90 -c $< -I$(INCLUDEDIR) $(LIBFLAGS)

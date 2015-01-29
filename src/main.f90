@@ -14,13 +14,14 @@ PROGRAM linearchain
 !!!SE,SELT,SEGT:SELF-ENERGY(R/A,<,>),T: HOPPING			!!!    
 !!!SPECTRAL:: SPECTRAL FUNCTION						!!!
 !!! TEMPERATURE,ENERGY:: TEMP & ENERGY PROFILE 			!!!
+!!!UPDATE JAN-29TH: L_M STANDS FOR THE L_m PARAMETERS, WICH DEPENDS ON THE BESSEL FUNCTIONS!!!
 
   INTEGER,PARAMETER::C=2,N=C*C,M=3
   REAL,PARAMETER:: WMAX=3,WINTERVAL=0.1,DDH=0.2,MU_L=0,MU_R=0,T_L=0,T_R=5,LAMBDA=0.1,PHENERGY=1
   COMPLEX,PARAMETER::ETA=0.001
   COMPLEX::GR(C,C),GA(C,C),GLT(C,C),GGT(C,C),SPECTRAL(C,C),TERM(N),X(N),WX,AUX(C,C)
   COMPLEX::A(N,N),SE(C,C),SELT(C,C),SEGT(C,C),T(C,C),GAMMAL(C,C),GAMMAR(C,C)
-  REAL::TEMPERATURE(C),ENERGY(C),W
+  REAL::TEMPERATURE(C),ENERGY(C),W,L_M
   INTEGER::I,J,K,L,Q,P,R
 
   !DOUBLE PRECISION jn
@@ -108,7 +109,10 @@ PROGRAM linearchain
                  !*****THIS SAVES THE DESIRED TERMS IN THE DIAGONAL*****!
                  Q=1
                  DO L=1,C
-                    GR(L,L)=X(Q)
+                 	!REMEMBER THE L_M PARAMETERS
+                 	L_M=(LAMBDA/PHENERGY)*SQRT((2*BOSE(PHENERGY,TEMPERATURE(L))+1)**2-1)
+			L_M=PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(L))*EXP(M*PHENERGY/(TEMPERATURE(L)*2))*BESSEL(M,L_M)
+                    GR(L,L)=L_M*X(Q)
                     Q=Q+1+C
                  END DO
                  !*****************************************************!
@@ -159,6 +163,13 @@ PROGRAM linearchain
                  AUX(L,:)=X(Q:Q+(C-1))
                  Q=Q+C
               END DO
+		DO Q=1,C
+			DO L=1,C
+				!REMEMBER THE L_M PARAMETERS
+				L_M=PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(Q))*PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(L))
+				AUX(I,J)=AUX(I,J)*L_M
+			END DO
+		END DO              
            END IF
 	END DO
      END DO
@@ -218,7 +229,10 @@ PROGRAM linearchain
                  !*****THIS SAVES THE DESIRED TERMS IN THE DIAGONAL*****!
                  Q=1
                  DO L=1,C
-                    GA(L,L)=X(Q)
+                        !REMEMBER THE L_M PARAMETERS
+                 	L_M=(LAMBDA/PHENERGY)*SQRT((2*BOSE(PHENERGY,TEMPERATURE(L))+1)**2-1)
+			L_M=PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(L))*EXP(M*PHENERGY/(TEMPERATURE(L)*2))*BESSEL(M,L_M)
+                    GA(L,L)=L_M*X(Q)
                     Q=Q+1+C
                  END DO
                  !*****************************************************!
@@ -267,6 +281,13 @@ PROGRAM linearchain
                  AUX(L,:)=X(Q:Q+(C-1))
                  Q=Q+C
               END DO
+              	DO Q=1,C
+			DO L=1,C
+				!REMEMBER THE L_M PARAMETERS
+				L_M=PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(Q))*PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(L))
+				AUX(I,J)=AUX(I,J)*L_M
+			END DO
+		END DO
            END IF
 	END DO
      END DO
@@ -325,7 +346,10 @@ PROGRAM linearchain
                  !*****THIS SAVES THE DESIRED TERMS IN THE DIAGONAL*****!
                  Q=1
                  DO L=1,C
-                    GR(L,L)=X(Q)
+                        !REMEMBER THE L_M PARAMETERS
+                 	L_M=(LAMBDA/PHENERGY)*SQRT((2*BOSE(PHENERGY,TEMPERATURE(L))+1)**2-1)
+			L_M=PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(L))*EXP(M*PHENERGY/(TEMPERATURE(L)*2))*BESSEL(M,L_M)
+                    GR(L,L)=L_M*X(Q)
                     Q=Q+1+C
                  END DO
                  !*****************************************************!
@@ -376,6 +400,13 @@ PROGRAM linearchain
                  AUX(L,:)=X(Q:Q+(C-1))
                  Q=Q+C
               END DO
+              	DO Q=1,C
+			DO L=1,C
+				!REMEMBER THE L_M PARAMETERS
+				L_M=PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(Q))*PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(L))
+				AUX(I,J)=AUX(I,J)*L_M
+			END DO
+		END DO
            END IF
 	END DO
      END DO
@@ -435,7 +466,10 @@ PROGRAM linearchain
                  !*****THIS SAVES THE DESIRED TERMS IN THE DIAGONAL*****!
                  Q=1
                  DO L=1,C
-                    GA(L,L)=X(Q)
+                        !REMEMBER THE L_M PARAMETERS
+                 	L_M=(LAMBDA/PHENERGY)*SQRT((2*BOSE(PHENERGY,TEMPERATURE(L))+1)**2-1)
+			L_M=PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(L))*EXP(M*PHENERGY/(TEMPERATURE(L)*2))*BESSEL(M,L_M)
+                    GA(L,L)=L_M*X(Q)
                     Q=Q+1+C
                  END DO
                  !*****************************************************!
@@ -484,6 +518,13 @@ PROGRAM linearchain
                  AUX(L,:)=X(Q:Q+(C-1))
                  Q=Q+C
               END DO
+              	DO Q=1,C
+			DO L=1,C
+				!REMEMBER THE L_M PARAMETERS
+				L_M=PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(Q))*PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(L))
+				AUX(I,J)=AUX(I,J)*L_M
+			END DO
+		END DO
            END IF
 	END DO
      END DO

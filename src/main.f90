@@ -400,13 +400,13 @@ PROGRAM linearchain
                  AUX(L,:)=X(Q:Q+(C-1))
                  Q=Q+C
               END DO
-              	DO Q=1,C
-			DO L=1,C
-				!REMEMBER THE L_M PARAMETERS
-				L_M=PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(Q))*PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(L))
-				AUX(I,J)=AUX(I,J)*L_M
-			END DO
-		END DO
+              DO Q=1,C
+                 DO L=1,C
+                    !REMEMBER THE L_M PARAMETERS
+                    L_M=PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(Q))*PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(L))
+                    AUX(I,J)=AUX(I,J)*L_M
+                 END DO
+              END DO
            END IF
 	END DO
      END DO
@@ -424,7 +424,7 @@ PROGRAM linearchain
      SE=-SE  !NOW THE SELF-ENERGY IS CONJUGATED
      DO I=1,C
 	DO J=1,C
-    !CALCULATE THE LESSER THAN SELF ENERGY
+     !CALCULATE THE LESSER THAN SELF ENERGY
            IF (I==J) THEN
               DO R=-M,M
                  WX=W-ETA+PHENERGY*M
@@ -547,8 +547,6 @@ PROGRAM linearchain
   END DO
 
   PRINT*,"--- finished!"
-
-  PRINT*,"x=1.0,n=1,jn=", BESSEL(2,1.5)
   STOP
 
 CONTAINS
@@ -631,7 +629,7 @@ CONTAINS
     INTEGER::INFO
     INTEGER::IPIV(N)
     
-    PRINT*,"SOLVER()"
+    !PRINT*,"SOLVER()"
     
     CALL ZGESV( N, 1, MAT, N, IPIV, RHS, N, INFO )
     

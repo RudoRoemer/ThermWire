@@ -14,16 +14,22 @@ PROGRAM linearchain
 !!!SE,SELT,SEGT:SELF-ENERGY(R/A,<,>),T: HOPPING			!!!    
 !!!SPECTRAL:: SPECTRAL FUNCTION						!!!
 !!! TEMPERATURE,ENERGY:: TEMP & ENERGY PROFILE 			!!!
-!!!UPDATE JAN-29TH: L_M STANDS FOR THE L_m PARAMETERS, WICH DEPENDS ON THE BESSEL FUNCTIONS!!!
+!!!UPDATED FEB-4TH: L_M STANDS FOR THE L_m PARAMETERS, WICH DEPENDS ON THE BESSEL FUNCTIONS!!!
 
   INTEGER,PARAMETER::C=2,N=C*C,M=3
+  INTEGER,PARAMETER::output_1=1, output_2=2, output_3=3
   REAL,PARAMETER:: WMAX=3,WINTERVAL=0.1,DDH=0.2,MU_L=0,MU_R=0,T_L=0,T_R=5,LAMBDA=0.1,PHENERGY=1
   COMPLEX,PARAMETER::ETA=0.001
   COMPLEX::GR(C,C),GA(C,C),GLT(C,C),GGT(C,C),SPECTRAL(C,C),TERM(N),X(N),WX,AUX(C,C)
   COMPLEX::A(N,N),SE(C,C),SELT(C,C),SEGT(C,C),T(C,C),GAMMAL(C,C),GAMMAR(C,C)
   REAL::TEMPERATURE(C),ENERGY(C),W,L_M
   INTEGER::I,J,K,L,Q,P,R
-
+  
+  OPEN(unit=output_1,file="greater.txt",action="write",status="replace")
+  OPEN(unit=output_2,file="lesser.txt",action="write",status="replace")
+  OPEN(unit=output_3,file="spectral.txt",action="write",status="replace")
+  
+  
   !DOUBLE PRECISION jn
   !EXTERNAL jn
 
@@ -295,7 +301,10 @@ PROGRAM linearchain
 
 
      GGT=MATMUL(GR,MATMUL(SEGT,GA))
-
+     WRITE(output_1,*) w,GGT(1,1)	!this writes the (1,1) element of the "greater than function" vs energy
+     					!note GGT is complex, so a w, (real(GGT(1,1)),imag(GGT(1,1))) is expected
+     					!you can visualize real/imag part of GGT just changing
+     					!GGT(1,1) by REAL(GGT(1,1)) / IMAG(GGT(1,1)) (no caps recognition)
      !*********************************LESSER THAN FUNCTION************************************************** 
 
      !DRESSED RETARDED FUNCTION
@@ -541,11 +550,22 @@ PROGRAM linearchain
      !NOW WE OBTAIN GLT
 
      GLT=MATMUL(GR,MATMUL(SELT,GA))
-
+     WRITE(output_2,*) w,GGT(1,1)	!this writes the (1,1) element of the "lesser than function" vs energy
+     					!note GLT is complex, so a w, (real(GLT(1,1)),imag(GLT(1,1))) is expected
+     					!you can visualize real/imag part of GLT just changing
+     					!GLT(1,1) by REAL(GLT(1,1)) / IMAG(GLT(1,1)) (no caps recognition)
+     SPECTRAL=(0,1)*(GGT-GLT)
+     WRITE(output_3,*) w,REAL(SPECTRAL(1,1))
+     					!note the imag part of the spectral function is zero disregarding
+     					!numerical errors. (1,1) element chosen just for have some output
      W=W+WINTERVAL
 
   END DO
-
+   
+  CLOSE(output_1)
+  CLOSE(output_2)
+  CLOSE(output_3)
+   
   PRINT*,"--- finished!"
 
   PRINT*,"x=1.0,n=1,jn=", BESSEL(2,1.5)

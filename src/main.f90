@@ -1,3 +1,4 @@
+!test para github
 PROGRAM linearchain
   IMPLICIT NONE
 !!!**************VAR. DECLARATION**************!!!

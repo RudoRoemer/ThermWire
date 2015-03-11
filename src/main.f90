@@ -658,19 +658,24 @@ CONTAINS
     N1=ABS(N)
     M=6
 
-    IF (N1<2) THEN 
-       OUTPUT=(X/2)**(N1)
-       !PRINT*,"BESSEL()",N,N1,OUTPUT
-       DO K=1,M
-          BK=1./((2**(2*K+N1))*FACTORIAL(K)*FACTORIAL(K+N1))
-          OUTPUT=OUTPUT+BK*((X)**(2*K+N1)) 
-          !PRINT*,"BESSEL()",N,N1,K,BK,OUTPUT
-       END DO
-       BESSEL=OUTPUT
-       !PRINT*,"BESSEL()",BESSEL
-
-    ELSE IF (N1>=2) THEN 
-       BESSEL= BESSJ(N1,X)
+!!$    IF (N1<2) THEN 
+!!$       OUTPUT=(X/2)**(N1)
+!!$       !PRINT*,"BESSEL()",N,N1,OUTPUT
+!!$       DO K=1,M
+!!$          BK=1./((2**(2*K+N1))*FACTORIAL(K)*FACTORIAL(K+N1))
+!!$          OUTPUT=OUTPUT+BK*((X)**(2*K+N1)) 
+!!$          !PRINT*,"BESSEL()",N,N1,K,BK,OUTPUT
+!!$       END DO
+!!$       BESSEL=OUTPUT
+!!$       !PRINT*,"BESSEL()",BESSEL
+!!$
+    SELECT CASE(N1)
+    CASE(0)
+       BESSEL= BESSI0(N1,X)
+    CASE(1)
+       BESSEL= BESSI1(N1,X)
+    CASE DEFAULT
+       BESSEL= BESSI(N1,X)
     END IF
 
   END FUNCTION BESSEL

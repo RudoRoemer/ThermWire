@@ -1,10 +1,10 @@
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #
-# felixsim
+# ThermWire
 #
-# Richard Beanland, Keith Evans, Rudolf A Roemer and Alexander Hubert
+# Elena Diaz, Francisco Dominguez-Adame, Rudolf A Roemer
 #
-# (C) 2013/14, all rights reserved
+# (C) 2015, all rights reserved
 #
 # Version: :VERSION:
 # Date:    :DATE:
@@ -45,13 +45,14 @@ F77FLAGS = -fbounds-check -fno-range-check # debug
 INCLUDEDIR = /warwick/mathlib/gnu/x86_64/ # CSC machines
 #INCLUDEDIR = /usr/lib/ # RAR Linux
 
-LIBFLAGS= -llapack -L../cephes/ -lmd #-lblas #-lfftw3
+#LIBFLAGS= -llapack -L../cephes/ -lmd #-lblas #-lfftw3
+LIBFLAGS= -llapack
 
 OBJECTFILES = main.f90 bessel.f90
 
 %.o: %.f90
-	$(F90) $(F90FLAGS) -DF90 -c $< -I$(INCLUDEDIR) $(LIBFLAGS)
-#	$(F90) -c $< $(INCLUDEDIR) $(LIBFLAGS)
+#	$(F90) $(F90FLAGS) -DF90 -c $< -I$(INCLUDEDIR) $(LIBFLAGS)
+	$(F90) -c $< $(INCLUDEDIR) $(LIBFLAGS)
 
 %.o: %.F90
 	$(F90) $(F90FLAGS) -DF90 -c $< -I$(INCLUDEDIR) $(LIBFLAGS)
@@ -62,9 +63,9 @@ OBJECTFILES = main.f90 bessel.f90
 %.o: %.F
 	$(FC) $(F77FLAGS) -DF77 -c $< -I$(INCLUDEDIR) $(LIBFLAGS)
 
-all:	thermwire
+all:	thermwire.GF
 
-thermwire: $(OBJECTFILES)
+thermwire.GF: $(OBJECTFILES)
 	$(F90) $(F90FLAGS) -o $@ $(OBJECTFILES) -I$(INCLUDEDIR) $(LIBFLAGS)
 #	$(F90) -o $@ $(OBJECTFILES) $(LIBFLAGS)
 

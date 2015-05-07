@@ -141,26 +141,34 @@ PROGRAM ThermWire
         ! 
         ! ! !*********************************END CHECKING SOLVER*
 
-        DO I=1,C
-           DO J=1,C
-              GLT(I,J)=0.0D0
-              GGT(I,J)=0.0D0
-              GRR(I,J)=0.0D0
-              GAA(I,J)=0.0D0
-           END DO
-        END DO
-
+!!$        DO I=1,C
+!!$           DO J=1,C
+!!$              GLT(I,J)=0.0D0
+!!$              GGT(I,J)=0.0D0
+!!$              GRR(I,J)=0.0D0
+!!$              GAA(I,J)=0.0D0
+!!$           END DO
+!!$        END DO
+        GLT=0.0D0
+        GGT=0.0D0
+        GRR=0.0D0
+        GAA=0.0D0
+       
         !Loop for W-PHENERGY*R to get GGT
         DO R=-M,M
 
-           DO I=1,C
-              DO J=1,C
-                 GR(I,J)=0.0D0
-                 GA(I,J)=0.0D0
-                 GRLT(I,J)=0.0D0
-                 GRGT(I,J)=0.0D0
-              END DO
-           END DO
+!!$           DO I=1,C
+!!$              DO J=1,C
+!!$                 GR(I,J)=0.0D0
+!!$                 GA(I,J)=0.0D0
+!!$                 GRLT(I,J)=0.0D0
+!!$                 GRGT(I,J)=0.0D0
+!!$              END DO
+!!$           END DO
+           GR=0.0D0
+           GA=0.0D0
+           GRLT=0.0D0
+           GRGT=0.0D0
 
            !First loop to set self energies and coeff L_M
            DO I=1,C
@@ -229,11 +237,12 @@ PROGRAM ThermWire
            WX=W+ETA-PHENERGY*R
 
            !FILL THE COEFF. MATRIX 
-           DO Q=1,N
-              DO L=1,N
-                 A(L,Q)=0.0
-              END DO
-           END DO
+!!$           DO Q=1,N
+!!$              DO L=1,N
+!!$                 A(L,Q)=0.0d0
+!!$              END DO
+!!$           END DO
+           A=0.0D0
 
            DO IX=1,C 
               DO Q=1,N
@@ -275,9 +284,10 @@ PROGRAM ThermWire
 
            END DO
 
-           DO L=1,N 
-              X(L)=0.0D0
-           END DO
+!!$           DO L=1,N 
+!!$              X(L)=0.0D0
+!!$           END DO
+           x=0.0D0
 
            !CALL THE LINEAR SYSTEM SOLVER TO GET DRESSED GR
            CALL SOLVER(A,TERM,X) 
@@ -315,12 +325,13 @@ PROGRAM ThermWire
            WX=W-ETA-PHENERGY*R
 
            !FILL THE COEFF. MATRIX 
-           DO Q=1,N
-              DO L=1,N
-                 A(L,Q)=0.0D0
-              END DO
-           END DO
-
+!!$           DO Q=1,N
+!!$              DO L=1,N
+!!$                 A(L,Q)=0.0D0
+!!$              END DO
+!!$           END DO
+           A=0.0D0
+           
            DO IX=1,C 
               DO Q=1,N
                  DO L=1,N
@@ -361,9 +372,10 @@ PROGRAM ThermWire
 
            END DO
 
-           DO L=1,N 
-              X(L)=0.0
-           END DO
+!!$           DO L=1,N 
+!!$              X(L)=0.0D0
+!!$           END DO
+           X=0.0D0
 
            !CALL THE LINEAR SYSTEM SOLVER TO GET DRESSED GR
            CALL SOLVER(A,TERM,X) 
@@ -447,14 +459,18 @@ PROGRAM ThermWire
         !Loop for W-PHENERGY*R to get GLT
         DO R=-M,M
 
-           DO I=1,C
-              DO J=1,C
-                 GR(I,J)=0.0D0
-                 GA(I,J)=0.0D0
-                 GRLT(I,J)=0.0D0
-                 GRGT(I,J)=0.0D0
-              END DO
-           END DO
+!!$           DO I=1,C
+!!$              DO J=1,C
+!!$                 GR(I,J)=0.0D0
+!!$                 GA(I,J)=0.0D0
+!!$                 GRLT(I,J)=0.0D0
+!!$                 GRGT(I,J)=0.0D0
+!!$              END DO
+!!$           END DO
+           GR=0.0D0
+           GA=0.0D0
+           GRLT=0.0D0
+           GRGT=0.0D0
 
            !First loop to set self energies and coeff L_M
 
@@ -511,11 +527,12 @@ PROGRAM ThermWire
            WX=W+ETA+PHENERGY*R
 
            !FILL THE COEFF. MATRIX 
-           DO Q=1,N
-              DO L=1,N
-                 A(L,Q)=0.0D0
-              END DO
-           END DO
+!!$           DO Q=1,N
+!!$              DO L=1,N
+!!$                 A(L,Q)=0.0D0
+!!$              END DO
+!!$           END DO
+           A=0.0D0
 
            DO IX=1,C 
               DO Q=1,N
@@ -556,9 +573,10 @@ PROGRAM ThermWire
               END IF
            END DO
 
-           DO L=1,N 
-              X(L)=0.0D0
-           END DO
+!!$           DO L=1,N 
+!!$              X(L)=0.0D0
+!!$           END DO
+           X=0.0D0
 
            !CALL THE LINEAR SYSTEM SOLVER TO GET DRESSED GR
            CALL SOLVER(A,TERM,X) 
@@ -601,11 +619,12 @@ PROGRAM ThermWire
            WX=W-ETA+PHENERGY*R
 
            !FILL THE COEFF. MATRIX 
-           DO Q=1,N
-              DO L=1,N
-                 A(L,Q)=0.0D0
-              END DO
-           END DO
+!!$           DO Q=1,N
+!!$              DO L=1,N
+!!$                 A(L,Q)=0.0D0
+!!$              END DO
+!!$           END DO
+           A=0.0D0
 
            DO IX=1,C 
               DO Q=1,N
@@ -649,9 +668,10 @@ PROGRAM ThermWire
 
            END DO
 
-           DO L=1,N 
-              X(L)=0.0D0
-           END DO
+!!$           DO L=1,N 
+!!$              X(L)=0.0D0
+!!$           END DO
+           X=0.0D0
 
            !CALL THE LINEAR SYSTEM SOLVER TO GET DRESSED GR
            CALL SOLVER(A,TERM,X) 
@@ -889,7 +909,7 @@ CONTAINS
     COMPLEX(8)::output
     INTEGER::i,j
 
-    output=A(1,1)+A(2,2)
+    Output=A(1,1)+A(2,2)
 
     Tr=output
 

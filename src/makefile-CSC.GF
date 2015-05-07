@@ -48,20 +48,20 @@ INCLUDEDIR = /warwick/mathlib/gnu/x86_64/ # CSC machines
 #LIBFLAGS= -llapack -L../cephes/ -lmd #-lblas #-lfftw3
 LIBFLAGS= -llapack
 
-OBJECTFILES = main.f90 bessel.f90
+OBJECTFILES = main.o bessel.o 	
 
 %.o: %.f90
 #	$(F90) $(F90FLAGS) -DF90 -c $< -I$(INCLUDEDIR) $(LIBFLAGS)
-	$(F90) -c $< $(INCLUDEDIR) $(LIBFLAGS)
+	$(F90) $(F90FLAGS) -DF90 -c $< 
 
 %.o: %.F90
-	$(F90) $(F90FLAGS) -DF90 -c $< -I$(INCLUDEDIR) $(LIBFLAGS)
+	$(F90) $(F90FLAGS) -DF90 -c 
 
 %.o: %.f
-	$(FC) $(F77FLAGS) -DF77 -c $< -I$(INCLUDEDIR) $(LIBFLAGS)
+	$(FC) $(F77FLAGS) -DF77 -c 
 
 %.o: %.F
-	$(FC) $(F77FLAGS) -DF77 -c $< -I$(INCLUDEDIR) $(LIBFLAGS)
+	$(FC) $(F77FLAGS) -DF77 -c 
 
 all:	thermwire.GF
 

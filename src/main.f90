@@ -21,18 +21,18 @@ PROGRAM ThermWire
   !WHICH DEPENDS ON THE BESSEL FUNCTIONS
   !********************************************
 
-  INTEGER,PARAMETER::C=2,N=C*C,M=1
-  INTEGER,PARAMETER::output_1=31, output_2=32, output_3=33, output_4=34, output_5=35
+  INTEGER,PARAMETER::C=4,N=C*C,M=1
+  INTEGER,PARAMETER::output_1=31, output_2=32, output_3=33, output_4=34, output_5=35, output_6=36
   DOUBLE PRECISION,PARAMETER:: &
-       WMAX=2.5D0,WINTERVAL=0.01D0,Vmax=2.0D0,dV=0.01D0,DDH=0.0D0,&
-       MU_L=0.0D0,MU_R=0.0D0,T_L=0.01D0,T_R=0.01D0,LAMBDA=0.5D0,b=0.5D0,&
+       WMAX=2.5D0,WINTERVAL=0.01D0,Vmax=2.0D0,dV=0.01D0,DDH=0.1D0,&
+       MU_L=0.0D0, T_L=0.1D0,T_R=0.1D0,LAMBDA=0.5D0,b=0.5D0,&
        PHENERGY=1.00D0
   COMPLEX*16,PARAMETER::ETA=(0,1)*1.0D-6
   COMPLEX*16::GRR(C,C),GAA(C,C),GR(C,C),GA(C,C),GRLT(C,C),GRGT(C,C),&
        GLT(C,C),GGT(C,C),SPECTRAL(C,C),TRANSCOEFF(C,C),TERM(N),X(N),&
-       WX,AUX(C,C),AUX2(C,C)
+       WX,AUX(C,C),AUX2(C,C),AUX3(C,C)
   COMPLEX*16::A(N,N),SE(C,C),SELT(C,C),SEGT(C,C),T(C,C),GAMMAL(C,C),GAMMAR(C,C)
-  DOUBLE PRECISION::TEMPERATURE(C),ENERGY(N),W,V,L_M(C,C),JE,JQ
+  DOUBLE PRECISION::TEMPERATURE(C),ENERGY(N),W,V,MU_R,L_M(C,C),JE,JQ
 
   INTEGER::I,J,K,L,Q,P,R,IX,IY,IZ,auxrow,auxcolumn
 
@@ -41,6 +41,7 @@ PROGRAM ThermWire
   OPEN(unit=output_3,file="spectral.txt",action="write",status="replace")
   OPEN(unit=output_4,file="transmision.txt",action="write",status="replace")
   OPEN(unit=output_5,file="current.txt",action="write",status="replace")
+  OPEN(unit=output_6,file="heatcurrent.txt",action="write",status="replace")
 
   !!**********END VAR. DECLARATION**************
 
@@ -82,20 +83,20 @@ PROGRAM ThermWire
   GAMMAL=0.0D0
   GAMMAR=0.0D0
 
-  ! PLA RESULTS
-  GAMMAL(1,1)=0.2D0 
-  GAMMAL(1,2)=0.2D0*SQRT(b)
-  GAMMAL(2,1)=0.2D0*SQRT(b)
-  GAMMAL(C,C)=0.2D0*b
+!   ! PLA RESULTS
+!   GAMMAL(1,1)=0.2D0 
+!   GAMMAL(1,2)=0.2D0*SQRT(b)
+!   GAMMAL(2,1)=0.2D0*SQRT(b)
+!   GAMMAL(C,C)=0.2D0*b
+! 
+!   GAMMAR(1,1)=0.2D0*b 
+!   GAMMAR(1,2)=0.2D0*SQRT(b)
+!   GAMMAR(2,1)=0.2D0*SQRT(b)
+!   GAMMAR(C,C)=0.2D0
 
-  GAMMAR(1,1)=0.2D0*b 
-  GAMMAR(1,2)=0.2D0*SQRT(b)
-  GAMMAR(2,1)=0.2D0*SQRT(b)
-  GAMMAR(C,C)=0.2D0
-
-  ! ! LINEAR CHAIN
-  ! GAMMAL(1,1)=0.2 
-  ! GAMMAR(C,C)=0.2
+!   ! LINEAR CHAIN
+  GAMMAL(1,1)=0.2 
+  GAMMAR(C,C)=0.2
   !*****************************************************!
 
   !*****************************************************!
@@ -104,13 +105,15 @@ PROGRAM ThermWire
 
   V=-Vmax
   DO WHILE(V<=-Vmax)
-     W=-WMAX	     
+     W=-WMAX	 
+
+     MU_R=-V
 
      !WE CALCULATE FIRST THE GGT FUNCTION AND THEN THE GLT
      !THE TWO PARTS ARE BASICALLY THE SAME
      !WITH MINOR DIFFERENCES
      JE=0.0D0
-
+     JQ=0.0D0
      DO WHILE(W<=WMAX)
         !*********************************GREATER THAN FUNCTION***
 
@@ -739,10 +742,13 @@ PROGRAM ThermWire
         SPECTRAL=(0,1)*(GGT-GLT)
         TRANSCOEFF=MATMUL(GAA,MATMUL(GAMMAR,MATMUL(GRR,GAMMAL)))
 
-        !AUX=MATMUL(GAMMAL-GAMMAR,(0,1)*GLT)+MATMUL(GAMMAL*&
-        !FERMI(W,MU_L,T_L)+GAMMAR*FERMI(W,MU_R,T_R),SPECTRAL)
-
-
+        AUX=MATMUL(GAMMAL-GAMMAR,(0,1)*GLT)+MATMUL(GAMMAL*FERMI(W,MU_L,T_L)-GAMMAR*FERMI(W,MU_R,T_R),SPECTRAL)
+        JE=JE+WINTERVAL*(AUX(1,1)+AUX(2,2))
+        
+        AUX2=MATMUL(GAMMAL,(0,1)*GLT)+MATMUL(GAMMAL*FERMI(W,MU_L,T_L),SPECTRAL)
+        AUX3=MATMUL(GAMMAR,(0,1)*GLT)+MATMUL(GAMMAR*FERMI(W,MU_R,T_L),SPECTRAL)
+        JQ=JQ+WINTERVAL*( (W-MU_L) * (AUX2(1,1)+AUX2(2,2)) - (W-MU_R)*(AUX3(1,1)+AUX3(2,2) )  )
+         
         WRITE(output_1,*) W,REAL(TRANSCOEFF(1,1)),-REAL((0.1)*TRANSCOEFF(1,1))
         WRITE(output_2,*) W,REAL(TRANSCOEFF(1,1)+TRANSCOEFF(2,2)),&
              -REAL((0.1)*(TRANSCOEFF(1,1)+TRANSCOEFF(2,2)))
@@ -750,12 +756,14 @@ PROGRAM ThermWire
         WRITE(output_3,*) W,0.5*(REAL(SPECTRAL(1,1))+REAL(SPECTRAL(2,2)))
         !WRITE(output_3,*) w,SPECTRAL(1,1),SPECTRAL(2,2)
         WRITE(output_4,*) W,REAL(TRANSCOEFF(1,1)+TRANSCOEFF(2,2))
-
+        WRITE(output_6,*) W,REAL(AUX(1,1)+AUX(2,2))
         W=W+WINTERVAL
-
+       
      END DO
 
-     WRITE(output_5,*) V,JE
+     WRITE(output_5,*) V,JE 
+     !WRITE(output_6,*) T_L,JQ
+     PRINT*,"V", V
      V=V+dV
 
   END DO
@@ -764,7 +772,7 @@ PROGRAM ThermWire
   CLOSE(output_3)
   CLOSE(output_4)  
   CLOSE(output_5)
-
+  CLOSE(output_6)
   PRINT*,"--- finished!"   
 
   ! PRINT*,"x=1.5,n=-1,jn=", BESSEL(-1,1.5)

@@ -47,12 +47,6 @@ PROGRAM ThermWire
 
   PRINT*,"ThermWire (c) 2015, Diaz/Dominguez-Adame/Roemer"
 
-  DO I=-5,5,1
-     V= 0.1D0+REAL(I,8)/10.0D0
-     PRINT*,I,V,BESSEL(I,V)
-  ENDDO
-  STOP
-
   !FILL THE MATRICES AND TEMPERATURE AND ENERGY PROFILES!
   !!******************TEMPERATURE PROFILE****************!
   DO I=1,C

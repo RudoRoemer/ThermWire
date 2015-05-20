@@ -47,6 +47,12 @@ PROGRAM ThermWire
 
   PRINT*,"ThermWire (c) 2015, Diaz/Dominguez-Adame/Roemer"
 
+  DO I=-5,5,1
+     V= 0.1D0+REAL(I,8)/10.0D0
+     PRINT*,I,V,BESSEL(I,V)
+  ENDDO
+  STOP
+
   !FILL THE MATRICES AND TEMPERATURE AND ENERGY PROFILES!
   !!******************TEMPERATURE PROFILE****************!
   DO I=1,C
@@ -202,10 +208,10 @@ PROGRAM ThermWire
 !!$                    write(8,*),W,R,L_M(I,J),&
 !!$                         PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(I))**2,&
 !!$                         EXP(R*PHENERGY/(TEMPERATURE(I)*2))
-                    write(8,*),W,R,BOSE(PHENERGY,TEMPERATURE(I)),&
-                         SQRT(BOSE(PHENERGY,TEMPERATURE(I))*&
-                         (BOSE(PHENERGY,TEMPERATURE(I))+1))
-                    write(8,*),BESSEL(R,L_M(I,J)),BESSEL(R,L_M(I,J))&
+!!$                    write(8,*),W,R,BOSE(PHENERGY,TEMPERATURE(I)),&
+!!$                         SQRT(BOSE(PHENERGY,TEMPERATURE(I))*&
+!!$                         (BOSE(PHENERGY,TEMPERATURE(I))+1))
+                    write(8,*),R,L_M(I,J),BESSEL(R,L_M(I,J)),BESSEL(R,L_M(I,J))&
                          *EXP(R*PHENERGY/(TEMPERATURE(I)*2))
 
                     !There is some problem here cause for R=1 we should obtain 
@@ -862,9 +868,9 @@ CONTAINS
 
     SELECT CASE(N1)
     CASE(0)
-       BESSEL= BESSI0(N1,X)
+       BESSEL= BESSI0(X)
     CASE(1)
-       BESSEL= BESSI1(N1,X)
+       BESSEL= BESSI1(X)
     CASE DEFAULT
        BESSEL= BESSI(N1,X)
     END SELECT

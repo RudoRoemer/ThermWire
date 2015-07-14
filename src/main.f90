@@ -21,18 +21,18 @@ PROGRAM ThermWire
   !WHICH DEPENDS ON THE BESSEL FUNCTIONS
   !********************************************
 
-  INTEGER,PARAMETER::C=4,N=C*C,M=1
+  INTEGER,PARAMETER::C=2,N=C*C,M=1
   INTEGER,PARAMETER::output_1=31, output_2=32, output_3=33, output_4=34, output_5=35, output_6=36
   DOUBLE PRECISION,PARAMETER:: &
-       WMAX=2.5D0,WINTERVAL=0.01D0,Vmax=2.0D0,dV=0.01D0,DDH=0.1D0,&
-       MU_L=0.0D0, T_L=0.1D0,T_R=0.1D0,LAMBDA=0.5D0,b=0.5D0,&
+       WMAX=3.0D0,WINTERVAL=0.005D0,Tmax=1.5D0,dTT=0.05D0,Vmax=0.0D0,dV=0.01D0,DDH=0.0D0,&
+       MU_L=0.0D0,T_R=0.01D0,LAMBDA=0.5D0,b=1.0D0,&
        PHENERGY=1.00D0
   COMPLEX*16,PARAMETER::ETA=(0,1)*1.0D-6
   COMPLEX*16::GRR(C,C),GAA(C,C),GR(C,C),GA(C,C),GRLT(C,C),GRGT(C,C),&
        GLT(C,C),GGT(C,C),SPECTRAL(C,C),TRANSCOEFF(C,C),TERM(N),X(N),&
        WX,AUX(C,C),AUX2(C,C),AUX3(C,C)
   COMPLEX*16::A(N,N),SE(C,C),SELT(C,C),SEGT(C,C),T(C,C),GAMMAL(C,C),GAMMAR(C,C)
-  DOUBLE PRECISION::TEMPERATURE(C),ENERGY(N),W,V,MU_R,L_M(C,C),JE,JQ
+  DOUBLE PRECISION::TEMPERATURE(C),ENERGY(N),W,TT,T_L,V,MU_R,L_M(C,C),AUXSPECTRAL,AUXCOEFF,AUXAUX,AUXAUX2,AUXAUX3,JE,JQ
 
   INTEGER::I,J,K,L,Q,P,R,IX,IY,IZ,auxrow,auxcolumn
 
@@ -47,12 +47,24 @@ PROGRAM ThermWire
 
   PRINT*,"ThermWire (c) 2015, Diaz/Dominguez-Adame/Roemer"
 
+ 
+  T_L=0.0+T_R
+ 
+  !DO WHILE(T_L<=Tmax)
+  
+     
+
   !FILL THE MATRICES AND TEMPERATURE AND ENERGY PROFILES!
   !!******************TEMPERATURE PROFILE****************!
   DO I=1,C
-     TEMPERATURE(I)=T_L+I*(T_R-T_L)/C      !QUITE SIMPLE LINEAR PROFILE 
-     !write(9,*),TEMPERATURE(I),T_L
+     TEMPERATURE(I)=T_L+(I)*(T_R-T_L)/C!-((T_R-T_L)/C)      !QUITE SIMPLE LINEAR PROFILE 
+     !write(8,*),TEMPERATURE(I)
   END DO
+!   TEMPERATURE(5)=0.90000000000000013D0
+!   TEMPERATURE(4)=0.70000000000000007D0
+!   TEMPERATURE(3)=0.50000000000000011D0
+!   TEMPERATURE(2)=0.30000000000000004D0
+!   TEMPERATURE(1)=0.10000000000000009D0
   !**********************HOPPING************************!
   DO I=1,C
      DO J=1,C
@@ -69,12 +81,12 @@ PROGRAM ThermWire
 !!$  DO I=1,N
 !!$     ENERGY(I)=0.0D0 !RANDOM ENERGIES MUST BE INCLUDED
 !!$  END DO
-  ENERGY=0.0D0
-  ENERGY(1)=0.25D0-LAMBDA*LAMBDA/PHENERGY
-  ENERGY(2)=-0.25D0-LAMBDA*LAMBDA/PHENERGY
+! ENERGY=0.0D0
+ ENERGY(1)=0.25D0-LAMBDA*LAMBDA/PHENERGY
+ ENERGY(2)=0.25D0-LAMBDA*LAMBDA/PHENERGY
   !*********************GAMMA MATRICES*************!
   ! 
-!!$  DO I=1,C
+!!$  DO I=1,Cy
 !!$     DO J=1,C
 !!$        GAMMAL(I,J)=0.0D0
 !!$        GAMMAR(I,J)=0.0D0
@@ -83,20 +95,20 @@ PROGRAM ThermWire
   GAMMAL=0.0D0
   GAMMAR=0.0D0
 
-!   ! PLA RESULTS
-!   GAMMAL(1,1)=0.2D0 
-!   GAMMAL(1,2)=0.2D0*SQRT(b)
-!   GAMMAL(2,1)=0.2D0*SQRT(b)
-!   GAMMAL(C,C)=0.2D0*b
-! 
-!   GAMMAR(1,1)=0.2D0*b 
-!   GAMMAR(1,2)=0.2D0*SQRT(b)
-!   GAMMAR(2,1)=0.2D0*SQRT(b)
-!   GAMMAR(C,C)=0.2D0
+  ! PLA RESULTS
+  GAMMAL(1,1)=0.2D0 
+  GAMMAL(1,2)=0.2D0*SQRT(b)
+  GAMMAL(2,1)=0.2D0*SQRT(b)
+  GAMMAL(C,C)=0.2D0*b
+
+  GAMMAR(1,1)=0.2D0*b 
+  GAMMAR(1,2)=0.2D0*SQRT(b)
+  GAMMAR(2,1)=0.2D0*SQRT(b)
+  GAMMAR(C,C)=0.2D0
 
 !   ! LINEAR CHAIN
-  GAMMAL(1,1)=0.2 
-  GAMMAR(C,C)=0.2
+!  GAMMAL(1,1)=0.2 
+!  GAMMAR(C,C)=0.2
   !*****************************************************!
 
   !*****************************************************!
@@ -104,8 +116,9 @@ PROGRAM ThermWire
   !*****************************************************!
 
   V=-Vmax
-  DO WHILE(V<=-Vmax)
-     W=-WMAX	 
+  DO WHILE(V<=Vmax)
+     W=-WMAX
+     !W=0.98D0	 
 
      MU_R=-V
 
@@ -172,6 +185,10 @@ PROGRAM ThermWire
            GA=0.0D0
            GRLT=0.0D0
            GRGT=0.0D0
+           SE=0.0D0
+           SEGT=0.0D0
+           SELT=0.0D0
+           L_M=0.0D0
 
            !First loop to set self energies and coeff L_M
            DO I=1,C
@@ -199,14 +216,14 @@ PROGRAM ThermWire
                          SQRT(BOSE(PHENERGY,TEMPERATURE(I))&
                          *(BOSE(PHENERGY,TEMPERATURE(I))+1))
 
-!!$                    write(8,*),W,R,L_M(I,J),&
+                 !write(8,*),W,R,L_M(I,J)
 !!$                         PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(I))**2,&
 !!$                         EXP(R*PHENERGY/(TEMPERATURE(I)*2))
-                    write(8,*),W,R,BOSE(PHENERGY,TEMPERATURE(I)),&
-                         SQRT(BOSE(PHENERGY,TEMPERATURE(I))*&
-                         (BOSE(PHENERGY,TEMPERATURE(I))+1))
-                    write(8,*),BESSEL(R,L_M(I,J)),BESSEL(R,L_M(I,J))&
-                         *EXP(R*PHENERGY/(TEMPERATURE(I)*2))
+!!$                    write(8,*),W,R,BOSE(PHENERGY,TEMPERATURE(I)),&
+!!$                         SQRT(BOSE(PHENERGY,TEMPERATURE(I))*&
+!!$                         (BOSE(PHENERGY,TEMPERATURE(I))+1))
+                  !  write(8,*),R,L_M(I,J),BESSEL(R,L_M(I,J)),BESSEL(R,L_M(I,J))&
+                  !       *EXP(R*PHENERGY/(TEMPERATURE(I)*2))
 
                     !There is some problem here cause for R=1 we should obtain 
                     !something finite but it seems to be related with 
@@ -214,13 +231,15 @@ PROGRAM ThermWire
                     L_M(I,J)=PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(I))**2&
                          *EXP(R*PHENERGY/(TEMPERATURE(I)*2))*BESSEL(R,L_M(I,J))
 
-                    IF (R==-3) L_M(I,J)=0.0D0
-                    IF (R==-1) L_M(I,J)=0.0D0
-                    IF (R==-2) L_M(I,J)=0.0D0
-                    IF (R==0) L_M(I,J)=0.778801D0
-                    IF (R==1) L_M(I,J)=0.1947D0
-                    IF (R==2) L_M(I,J)=0.0243375D0
-                    IF (R==3) L_M(I,J)=0.00202813D0
+                 !write(8,*),R,L_M(I,J)
+                         
+!                    IF (R==-3) L_M(I,J)=0.0D0
+!                    IF (R==-1) L_M(I,J)=0.0D0
+!                     IF (R==-2) L_M(I,J)=0.0D0
+!                     IF (R==0) L_M(I,J)=0.778801D0
+!                     IF (R==1) L_M(I,J)=0.1947D0
+!                     IF (R==2) L_M(I,J)=0.0243375D0
+!                     IF (R==3) L_M(I,J)=0.00202813D0
 !!$                    write(8,*),W,R,L_M(I,J),&
 !!$                         PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(I))**2,&
 !!$                         EXP(R*PHENERGY/(TEMPERATURE(I)*2))
@@ -228,11 +247,11 @@ PROGRAM ThermWire
                  ELSE
                     L_M(I,J)=PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(I))*&
                          PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(J))
-                    !write(8,*),W,R,I,J,SEGT(I,J)
-                    !write(8,*),W,R,I,J,SELT(I,J)
+                   
 
                  END IF
-
+                !write(8,*),W,R,I,J,L_M(I,J)
+                         
               END DO
            END DO
 
@@ -270,11 +289,14 @@ PROGRAM ThermWire
                        !write(8,*),W-PHENERGY*R,R,L,Q,auxrow,auxcolumn,A(L,Q)
 
                     END IF
-
                  END DO
               END DO
            END DO
-
+           DO L=1,N
+                 DO Q=1,N
+                 !write(8,*),L,Q,Real(A(L,Q)),Real((0,1)*A(L,Q))
+                 END DO
+           END DO
            !FILL THE INDEPENDENT TERM 
            DO L=1,N
               TERM(L)=0
@@ -282,9 +304,9 @@ PROGRAM ThermWire
               IF (MOD(L,C+1)==1) THEN
                  P= INT(L/(C+1))+1
                  TERM(L)=1./(WX-ENERGY(P)-SE(P,P)) 
-                 !write(9,*),L,P,TERM(L)
+              
               END IF
-
+              !write(8,*),Real(TERM(L)),Real((0,1)*TERM(L))
            END DO
 
 !!$           DO L=1,N 
@@ -388,15 +410,6 @@ PROGRAM ThermWire
            !                                
            !*****THIS SAVES THE DESIRED TERMS IN THE DIAGONAL*****!
            ! 				
-           DO L=1,N
-
-              IF (MOD(L,C+1)==1) THEN
-                 P= INT(L/(C+1))+1
-                 GA(P,P)=X(L)
-                 !write(9,*),L,P,GA(P,P)
-              END IF
-
-           END DO
 
            DO L=1,N
               auxrow=INT((L - 1)/C) + 1
@@ -427,6 +440,12 @@ PROGRAM ThermWire
            !Here we get GRGT at w-R*w0
            GRGT=MATMUL(GR,MATMUL(SEGT,GA))
            GRLT=MATMUL(GR,MATMUL(SELT,GA))
+!           DO I=1,C
+!               DO J=1,C
+!                 write(81,*),R,I,J,Real(GRGT(I,J)),Real((0,1)*GRGT(I,J))
+!                 write(91,*),R,I,J,Real(GRLT(I,J)),Real((0,1)*GRLT(I,J))
+!                END DO
+!           END DO
            DO I=1,C
               DO J=1,C
                  IF(I==J) THEN
@@ -438,22 +457,27 @@ PROGRAM ThermWire
                        !write(8,*),W-PHENERGY*R,R,GRGT(1,1),GRGT(1,2)
                     END IF
                  END IF
+                 !write(81,*),R,I,J,Real(GGT(I,J)),Real((0,1)*GGT(I,J))
               END DO
            END DO
-           write(88,*),W-PHENERGY*R,W-PHENERGY*R
+           !write(88,*),W-PHENERGY*R,W-PHENERGY*R
 
            DO I=1,C
               DO J=1,C
-                 IF(I==J) THEN
-                    GRR(I,J)=GRR(I,J)+L_M(I,J)*(GR(I,J)+0.5*GRLT(I,J))
-                    GAA(I,J)=GAA(I,J)+L_M(I,J)*(GR(I,J)+0.5*GRLT(I,J)-GRGT(I,J))
-                 ELSE 
-                    IF(R==0) THEN
-                       GRR(I,J)=L_M(I,J)*GR(I,J)
-                       GAA(I,J)=L_M(I,J)*GA(I,J)
-                    END IF
-                 END IF
-              END DO
+                     
+                  IF(I==J) THEN
+                     GRR(I,J)=GRR(I,J)+L_M(I,J)*(GR(I,J)+0.5*GRLT(I,J))
+                     !GAA(I,J)=GAA(I,J)+L_M(I,J)*(GR(I,J)+0.5*GRLT(I,J)-GRGT(I,J))
+                  ELSE 
+                     IF(R==0) THEN
+                        GRR(I,J)=L_M(I,J)*(GR(I,J)+GRLT(I,J)-GRGT(I,J))
+                        !GAA(I,J)=L_M(I,J)*(GA(I,J)
+                        !write(81,*),W,I,J,Real(GRR(I,J)),Real((0,1)*GRR(I,J))
+                        !write(91,*),W,I,J,Real(GAA(I,J)),Real((0,1)*GAA(I,J))
+                     END IF
+                  END IF
+                  END DO
+                 
            END DO
 
         END DO !Loop in R
@@ -474,7 +498,10 @@ PROGRAM ThermWire
            GA=0.0D0
            GRLT=0.0D0
            GRGT=0.0D0
-
+           SE=0.0D0
+           SEGT=0.0D0
+           SELT=0.0D0
+           L_M=0.0D0
            !First loop to set self energies and coeff L_M
 
            DO I=1,C
@@ -497,30 +524,33 @@ PROGRAM ThermWire
                  !write(8,*),W,R,I,J,SELT(I,J)
 
                  IF (I==J) THEN
-
-                    L_M(I,J)=2*(LAMBDA/PHENERGY)**2&
-                         *SQRT(BOSE(PHENERGY,TEMPERATURE(I))&
+                     L_M(I,J)=2*(LAMBDA/PHENERGY)**2*&
+                         SQRT(BOSE(PHENERGY,TEMPERATURE(I))&
                          *(BOSE(PHENERGY,TEMPERATURE(I))+1))
-                    !There is some problem here cause for R=1 we should 
-                    !obtain something finite but it seems to be related 
-                    !with higher decimals
+
+                 !write(8,*),W,R,L_M(I,J)
+!!$                         PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(I))**2,&
+!!$                         EXP(R*PHENERGY/(TEMPERATURE(I)*2))
+!!$                    write(8,*),W,R,BOSE(PHENERGY,TEMPERATURE(I)),&
+!!$                         SQRT(BOSE(PHENERGY,TEMPERATURE(I))*&
+!!$                         (BOSE(PHENERGY,TEMPERATURE(I))+1))
+                  !  write(8,*),R,L_M(I,J),BESSEL(R,L_M(I,J)),BESSEL(R,L_M(I,J))&
+                  !       *EXP(R*PHENERGY/(TEMPERATURE(I)*2))
+
+                    !There is some problem here cause for R=1 we should obtain 
+                    !something finite but it seems to be related with 
+                    !higher decimals
                     L_M(I,J)=PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(I))**2&
-                         *EXP(R*PHENERGY/(TEMPERATURE(I)*2))*BESSEL(R,L_M(I,J)) 
-                    IF (R==-3) L_M(I,J)=0.0D0
-                    IF (R==-1) L_M(I,J)=0.0D0
-                    IF (R==-2) L_M(I,J)=0.0D0
-                    IF (R==0) L_M(I,J)=0.778801D0
-                    IF (R==1) L_M(I,J)=0.1947D0
-                    IF (R==2) L_M(I,J)=0.0243375D0
-                    IF (R==3) L_M(I,J)=0.00202813D0
-                    !write(8,*),W,R,I,J,L_M(I,J)D0
+                         *EXP(R*PHENERGY/(TEMPERATURE(I)*2))*BESSEL(R,L_M(I,J))
+                    
+          
 
                  ELSE
 
                     L_M(I,J)=PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(I))&
                          *PHONON_PART(LAMBDA,PHENERGY,TEMPERATURE(J))
                     !write(8,*),W,R,I,J,SEGT(I,J),SELT(I,J),L_M(I,J)
-
+                   
                  END IF
 
               END DO
@@ -693,20 +723,7 @@ PROGRAM ThermWire
 
            !*****************************************************!
 
-           !NOW OBTAIN THE ADVANCED GREEN FUNCTION BUT ALREADY 
-           !MULTIPLIED BY THE COEFF L_M
-           ! DO I=1,C
-           ! 	DO J=1,C
-           !            IF(I==J) THEN
-           !               GA(I,J)=GA(I,J)
-           !               
-           !            ELSE
-           !               GA(I,J)=AUX(I,J)
-           !               
-           !            END IF
-           !        END DO
-           ! END DO
-           !write(8,*),W+PHENERGY*R,GA(1,1),GA(2,2)
+      
            GRGT=MATMUL(GR,MATMUL(SEGT,GA))
            GRLT=MATMUL(GR,MATMUL(SELT,GA))
 
@@ -718,54 +735,80 @@ PROGRAM ThermWire
                     IF(R==0) THEN
                        GLT(I,J)=L_M(I,J)*GRLT(I,J)
                     END IF
-                 END IF
+                 END IF 
+                 !write(91,*),R,I,J,Real(GLT(I,J)),Real((0,1)*GLT(I,J))
               END DO
            END DO
 
            DO I=1,C
               DO J=1,C
-                 IF(I==J) THEN
-                    GRR(I,J)=GRR(I,J)-L_M(I,J)*(0.5*GRLT(I,J))
-                    GAA(I,J)=GAA(I,J)+L_M(I,J)*(0.5*GRLT(I,J))
-                 ELSE 
-                    IF(R==0) THEN
-                       GRR(I,J)=L_M(I,J)*GR(I,J)
-                       GAA(I,J)=L_M(I,J)*GA(I,J)
-                    END IF
+                   IF(I==J) THEN
+                    GRR(I,J)=GRR(I,J)-L_M(I,J)*(0.5*GRGT(I,J))
+                    !GAA(I,J)=GAA(I,J)+L_M(I,J)*(0.5*GRLT(I,J))
+                   !ELSE 
+                   !IF(R==0) THEN
+                      !GRR(I,J)=L_M(I,J)*GR(I,J)
+                      !GAA(I,J)=L_M(I,J)*GA(I,J)
+                      !write(81,*),W,I,J,Real(GRR(I,J)),Real((0,1)*GRR(I,J))
+                      !write(91,*),W,I,J,Real(GAA(I,J)),Real((0,1)*GAA(I,J))
+                   !END IF
                  END IF
               END DO
            END DO
+           !write(81,*),W,I,J,Real(GRR(1,1)),Real((0,1)*GRR(1,1))
+           !write(91,*),W,I,J,Real(GAA(1,1)),Real((0,1)*GAA(1,1))
 
         END DO !Loop in R
 
+        GAA=GRR+GLT-GGT          
+        !SPECTRAL=(0,1)*(GGT-GLT)
         !SPECTRAL=(0,1)*(GRR-GAA)
-        SPECTRAL=(0,1)*(GGT-GLT)
-        TRANSCOEFF=MATMUL(GAA,MATMUL(GAMMAR,MATMUL(GRR,GAMMAL)))
-
-        AUX=MATMUL(GAMMAL-GAMMAR,(0,1)*GLT)+MATMUL(GAMMAL*FERMI(W,MU_L,T_L)-GAMMAR*FERMI(W,MU_R,T_R),SPECTRAL)
-        JE=JE+WINTERVAL*(AUX(1,1)+AUX(2,2))
+        TRANSCOEFF=MATMUL(MATMUL(GLT,GAMMAR),MATMUL(GGT,GAMMAL))
+        SPECTRAL=MATMUL(GGT,GAMMAL)
+        !TRANSCOEFF=GAA
         
+        write(81,*),W,GLT(1,1),GLT(1,1)
+        write(91,*),W,GAA(1,1),GAA(1,1)
+     
+        
+        AUX=MATMUL(GAMMAL-GAMMAR,(0,1)*GLT)+MATMUL(GAMMAL*FERMI(W,MU_L,T_L)-GAMMAR*FERMI(W,MU_R,T_R),SPECTRAL)        
         AUX2=MATMUL(GAMMAL,(0,1)*GLT)+MATMUL(GAMMAL*FERMI(W,MU_L,T_L),SPECTRAL)
         AUX3=MATMUL(GAMMAR,(0,1)*GLT)+MATMUL(GAMMAR*FERMI(W,MU_R,T_L),SPECTRAL)
-        JQ=JQ+WINTERVAL*( (W-MU_L) * (AUX2(1,1)+AUX2(2,2)) - (W-MU_R)*(AUX3(1,1)+AUX3(2,2) )  )
+        
+        AUXSPECTRAL=0.0
+        AUXCOEFF=0.0
+        AUXAUX=0.0
+        AUXAUX2=0.0
+        AUXAUX3=0.0
+        DO J=1,C
+                AUXSPECTRAL=AUXSPECTRAL+Real(SPECTRAL(J,J))
+                AUXCOEFF= AUXCOEFF+Real(TRANSCOEFF(J,J))
+                AUXAUX= AUXAUX+AUX(J,J)
+                AUXAUX2= AUXAUX2+AUX2(J,J)
+                AUXAUX3= AUXAUX3+AUX3(J,J)
+        END DO
+        JE=JE+WINTERVAL*AUXAUX
+        JQ=JQ+WINTERVAL*( (W-MU_L) * AUXAUX2 - (W-MU_R)*AUXAUX3  )
          
-        WRITE(output_1,*) W,REAL(TRANSCOEFF(1,1)),-REAL((0.1)*TRANSCOEFF(1,1))
-        WRITE(output_2,*) W,REAL(TRANSCOEFF(1,1)+TRANSCOEFF(2,2)),&
-             -REAL((0.1)*(TRANSCOEFF(1,1)+TRANSCOEFF(2,2)))
-
-        WRITE(output_3,*) W,0.5*(REAL(SPECTRAL(1,1))+REAL(SPECTRAL(2,2)))
-        !WRITE(output_3,*) w,SPECTRAL(1,1),SPECTRAL(2,2)
-        WRITE(output_4,*) W,REAL(TRANSCOEFF(1,1)+TRANSCOEFF(2,2))
-        WRITE(output_6,*) W,REAL(AUX(1,1)+AUX(2,2))
-        W=W+WINTERVAL
        
+
+        
+       WRITE(output_3,*) W,AUXSPECTRAL/C
+       WRITE(output_4,*) W,AUXCOEFF
+
+        
+        W=W+WINTERVAL
+        
      END DO
 
      WRITE(output_5,*) V,JE 
-     !WRITE(output_6,*) T_L,JQ
+     WRITE(output_6,*) T_L-T_R,JQ
+     !WRITE(output_6,*) V,JQ
      PRINT*,"V", V
+     PRINT*,"TL", T_L-T_R
      V=V+dV
-
+     !T_L=T_L+dTT
+  !END DO
   END DO
   CLOSE(output_1)
   CLOSE(output_2)
@@ -840,11 +883,11 @@ CONTAINS
     FACTORIAL=OUTPUT
   END FUNCTION FACTORIAL
 
-  COMPLEX FUNCTION TRACE(N,A)
+  DOUBLE PRECISION FUNCTION TRACE(N,A)
     IMPLICIT NONE
     INTEGER,INTENT(IN)::N
-    COMPLEX,INTENT(IN)::A(N,N)
-    COMPLEX::OUTPUT
+    DOUBLE PRECISION::A(N,N)
+    DOUBLE PRECISION::OUTPUT
     INTEGER::I,J
     DO I=1,N
        DO J=1,N
@@ -853,7 +896,8 @@ CONTAINS
     END DO
     TRACE=OUTPUT
   END FUNCTION TRACE
-
+  
+  
   DOUBLE PRECISION FUNCTION BESSEL(N,X)
     IMPLICIT NONE
     INTEGER::N,N1,K,P,M
@@ -862,9 +906,9 @@ CONTAINS
 
     SELECT CASE(N1)
     CASE(0)
-       BESSEL= BESSI0(N1,X)
+       BESSEL= BESSI0(X)
     CASE(1)
-       BESSEL= BESSI1(N1,X)
+       BESSEL= BESSI1(X)
     CASE DEFAULT
        BESSEL= BESSI(N1,X)
     END SELECT
@@ -911,16 +955,6 @@ CONTAINS
 
   END SUBROUTINE SOLVER
 
-  COMPLEX(8) FUNCTION Tr(A)
-    IMPLICIT NONE
-    COMPLEX(8),INTENT(IN)::A(2,2)
-    COMPLEX(8)::output
-    INTEGER::i,j
 
-    Output=A(1,1)+A(2,2)
-
-    Tr=output
-
-  END FUNCTION Tr
 
 END PROGRAM ThermWire

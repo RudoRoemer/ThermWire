@@ -222,8 +222,13 @@ PROGRAM ThermWire
 !!$                    write(8,*),W,R,BOSE(PHENERGY,TEMPERATURE(I)),&
 !!$                         SQRT(BOSE(PHENERGY,TEMPERATURE(I))*&
 !!$                         (BOSE(PHENERGY,TEMPERATURE(I))+1))
+<<<<<<< HEAD
                   !  write(8,*),R,L_M(I,J),BESSEL(R,L_M(I,J)),BESSEL(R,L_M(I,J))&
                   !       *EXP(R*PHENERGY/(TEMPERATURE(I)*2))
+=======
+                    write(8,*),R,L_M(I,J),BESSEL(R,L_M(I,J)),BESSEL(R,L_M(I,J))&
+                         *EXP(R*PHENERGY/(TEMPERATURE(I)*2))
+>>>>>>> 085f9ea939d8590d917148fed04e3d88da595b43
 
                     !There is some problem here cause for R=1 we should obtain 
                     !something finite but it seems to be related with 
